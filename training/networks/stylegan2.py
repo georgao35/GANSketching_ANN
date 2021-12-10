@@ -310,14 +310,14 @@ class Generator(nn.Module):
 
     def make_noise(self):
         device = self.input.input.device
-        noises = [jt.randn(1, 1, (2 ** 2), (2 ** 2), device=device)]
+        noises = [jt.randn(1, 1, (2 ** 2), (2 ** 2))]
         for i in range(3, (self.log_size + 1)):
             for _ in range(2):
-                noises.append(jt.randn(1, 1, (2 ** i), (2 ** i), device=device))
+                noises.append(jt.randn(1, 1, (2 ** i), (2 ** i)))
         return noises
 
     def mean_latent(self, n_latent):
-        latent_in = jt.randn(n_latent, self.style_dim, device=self.input.input.device)
+        latent_in = jt.randn(n_latent, self.style_dim)
         latent = self.style(latent_in).mean(0, keepdim=True)
         return latent
 
