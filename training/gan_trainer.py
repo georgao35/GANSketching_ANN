@@ -2,6 +2,7 @@ import os
 import numpy as np
 import jittor
 import jittor.utils
+import torch
 
 from .gan_model import GANModel
 
@@ -15,8 +16,8 @@ class GANTrainer():
     def __init__(self, opt):
         self.opt = opt
         self.device = 'cuda' if not self.opt.use_cpu else 'cpu'
-
-        self.gan_model = GANModel(opt).to(self.device)
+        # TODO: doublecheck usage
+        self.gan_model = GANModel(opt) # delete to(self.device)
 
         self.generated = None
         if opt.isTrain:
@@ -121,7 +122,7 @@ class GANTrainer():
         print(f"Resuming model at iteration {iters}")
         self.gan_model.load(iters)
         load_path = os.path.join(self.opt.checkpoints_dir, self.opt.name, f"{iters}_net_")
-        state_dict = jittor.load(load_path + "misc.pth", map_location=self.device)
+        state_dict = jittor.load(load_path + "misc.pth")
         self.optimizer_G.load_state_dict(state_dict["g_optim"])
         self.optimizer_D.load_state_dict(state_dict["d_optim"])
 
@@ -135,7 +136,7 @@ class GANTrainer():
             interp_z_file = './cache_files/interp_z.pth'
 
         if os.path.exists(sample_z_file):
-            self.sample_z = jittor.load(sample_z_file).to(device)
+            self.sample_z = jittor.load(sample_z_file)
         else:
             if self.opt.reduce_visuals:
                 z = jittor.randn(8, 512)
@@ -143,10 +144,10 @@ class GANTrainer():
                 z = jittor.randn(32, 512)
 
             jittor.save(z, sample_z_file)
-            self.sample_z = z.to(device)
+            self.sample_z = z
 
         if os.path.exists(interp_z_file):
-            self.interp_z = jittor.load(interp_z_file).to(device)
+            self.interp_z = jittor.load(interp_z_file)
         else:
             with jittor.no_grad():
                 if self.opt.reduce_visuals:
@@ -161,7 +162,7 @@ class GANTrainer():
                     z.append((1 - c) * z0 + c * z1)
                 z = jittor.concat(z, 1).view(-1, 512)
             jittor.save(z, interp_z_file)
-            self.interp_z = z.to(device)
+            self.interp_z = z
 
 
 def update_dict(old_dict, new_dict):
