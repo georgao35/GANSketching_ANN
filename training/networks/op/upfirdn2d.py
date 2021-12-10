@@ -364,6 +364,9 @@ __global__ void upfirdn2d_kernel(scalar_t *out, const scalar_t *input,
 
 
 class UpFirDn2d(Function):
+    def __init__(self) -> None:
+        super().__init__()
+
     def execute(self, input: Var, kernel: Var, up, down, pad) -> Var:
         up_x, up_y = up
         down_x, down_y = down

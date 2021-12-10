@@ -88,6 +88,9 @@ static __global__ void fused_bias_act_kernel(scalar_t* out, const scalar_t* p_x,
 
 
 class FusedLeakyReLUFunction(Function):
+    def __init__(self) -> None:
+        super().__init__()
+
     def execute(self, input: Var, bias: Var, negative_slope, scale) -> Var:
         empty = jt.empty(shape=(0,), dtype=input.dtype)
 
