@@ -1,6 +1,7 @@
 import jittor as jt
 from jittor import init
 from jittor import nn
+import numpy as np
 
 import math, random
 
@@ -64,9 +65,7 @@ class Downsample(nn.Module):
         self.pad = (pad0, pad1)
 
     def forward(self, input):
-        # TODO operands
         out = upfirdn2d(input, self.kernel, up=1, down=self.factor, pad=self.pad)
-
         return out
 
 
@@ -86,9 +85,7 @@ class Blur(nn.Module):
         self.pad = pad
 
     def forward(self, input):
-        # TODO op upfirdn2d
         out = upfirdn2d(input, self.kernel, pad=self.pad)
-
         return out
     
     
@@ -117,10 +114,9 @@ class EqualLinear(nn.Module):
 
     def __init__(self, in_dim, out_dim, bias=True, bias_init=0, lr_mul=1, activation=None):
         super().__init__()
-        # TODO div_
-        self.weight = jt.array(jt.randn(out_dim, in_dim).div_(lr_mul))
+        self.weight = jt.array(np.random.randn(out_dim, in_dim) / lr_mul).float32()
         if bias:
-            self.bias = jt.array(jt.zeros(out_dim).fill_(bias_init))
+            self.bias = jt.array(np.zeros(out_dim).fill(bias_init)).float32().stop_grad()
         else:
             self.bias = None
         self.activation = activation
@@ -129,7 +125,6 @@ class EqualLinear(nn.Module):
 
     def execute(self, input):
         if self.activation:
-            # TODO functional in jittor
             out = nn.matmul(input, (self.weight * self.scale))
             out = fused_leaky_relu(out, (self.bias * self.lr_mul))
         else:
@@ -217,8 +212,7 @@ class NoiseInjection(nn.Module):
     def forward(self, image, noise=None):
         if noise is None:
             batch, _, height, width = image.shape
-            # TODO what's new empty and cannot convert normal_
-            noise = image.new_empty(batch, 1, height, width).normal_()
+            noise = jt.randn_like(image)
 
         return image + self.weight * noise
     
