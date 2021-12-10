@@ -309,7 +309,6 @@ class Generator(nn.Module):
         self.n_latent = ((self.log_size * 2) - 2)
 
     def make_noise(self):
-        device = self.input.input.device
         noises = [jt.randn(1, 1, (2 ** 2), (2 ** 2))]
         for i in range(3, (self.log_size + 1)):
             for _ in range(2):
