@@ -4,7 +4,6 @@ import jittor.nn as nn
 from jittor import Var
 
 def rand_brightness(x):
-    # interface format need checking
     x = x + (jittor.rand(x.size(0), 1, 1, 1,
              dtype=x.dtype) - 0.5)
     return x
