@@ -130,10 +130,11 @@ class EqualLinear(nn.Module):
     def execute(self, input):
         if self.activation:
             # TODO functional in jittor
-            out = F.linear(input, (self.weight * self.scale))
+            out = nn.matmul(input, (self.weight * self.scale))
             out = fused_leaky_relu(out, (self.bias * self.lr_mul))
         else:
-            out = F.linear(input, (self.weight * self.scale), bias=(self.bias * self.lr_mul))
+            out = nn.matmul(input, (self.weight * self.scale))
+            out += self.bias * self.lr_mul
         return out
 
     def __repr__(self):
