@@ -146,17 +146,13 @@ class GANModel(Module):
         load_path = os.path.join(
             self.opt.checkpoints_dir, self.opt.name, f"{iters}_net_"
         )
-        state_dict_g = jt.load(load_path + "G.pth", map_location=self.device)
+        state_dict_g = jt.load(load_path + "G.pth")
         self.netG.load_state_dict(state_dict_g)
 
-        state_dict_d_sketch = jt.load(
-            load_path + "D_sketch.pth", map_location=self.device
-        )
+        state_dict_d_sketch = jt.load(load_path + "D_sketch.pth")
         self.netD_sketch.load_state_dict(state_dict_d_sketch)
         if self.opt.l_image > 0:
-            state_dict_d_image = jt.load(
-                load_path + "D_image.pth", map_location=self.device
-            )
+            state_dict_d_image = jt.load(load_path + "D_image.pth")
             self.netD_image.load_state_dict(state_dict_d_image)
 
     ############################################################################
@@ -168,9 +164,7 @@ class GANModel(Module):
         netD_sketch = networks.define_D(opt) if opt.isTrain else None
 
         if opt.g_pretrained != "":
-            weights = jt.load(
-                opt.g_pretrained, map_location=lambda storage, loc: storage
-            )
+            weights = jt.load(opt.g_pretrained)
             netG.load_state_dict(weights, strict=False)
 
         if (
@@ -179,9 +173,7 @@ class GANModel(Module):
             and not opt.dsketch_no_pretrain
         ):
             print("Using pretrained weight for D1...")
-            weights = jt.load(
-                opt.d_pretrained, map_location=lambda storage, loc: storage
-            )
+            weights = jt.load(opt.d_pretrained)
             netD_sketch.load_state_dict(weights)
 
         if opt.l_image > 0:
@@ -191,9 +183,7 @@ class GANModel(Module):
             netD_image = networks.define_D(opt)
             if opt.d_pretrained != "":
                 print("Using pretrained weight for D_image...")
-                weights = jt.load(
-                    opt.d_pretrained, map_location=lambda storage, loc: storage
-                )
+                weights = jt.load(opt.d_pretrained)
                 netD_image.load_state_dict(weights)
             netD = [netD_sketch, netD_image]
         else:
