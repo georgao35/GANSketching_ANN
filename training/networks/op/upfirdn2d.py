@@ -1,20 +1,10 @@
 import jittor as jt
-from jittor import init
 from jittor import nn
-from jittor import Function
+from jittor import Function, Var
 
 
 def upfirdn2d_code_op(
-    input: jt.Var,
-    kernel: jt.Var,
-    up_x,
-    up_y,
-    down_x,
-    down_y,
-    pad_x0,
-    pad_x1,
-    pad_y0,
-    pad_y1,
+    input: Var, kernel: Var, up_x, up_y, down_x, down_y, pad_x0, pad_x1, pad_y0, pad_y1,
 ):
     major_dim, in_h, in_w, minor_dim = input.shape
     kernel_h = kernel.shape[0]
@@ -374,7 +364,7 @@ __global__ void upfirdn2d_kernel(scalar_t *out, const scalar_t *input,
 
 
 class UpFirDn2d(Function):
-    def execute(self, input: jt.Var, kernel: jt.Var, up, down, pad) -> jt.Var:
+    def execute(self, input: Var, kernel: Var, up, down, pad) -> Var:
         up_x, up_y = up
         down_x, down_y = down
         pad_x0, pad_x1, pad_y0, pad_y1 = pad
@@ -449,16 +439,7 @@ def upfirdn2d(input, kernel, up=1, down=1, pad=(0, 0)):
 
 
 def upfirdn2d_native(
-    input: jt.Var,
-    kernel: jt.Var,
-    up_x,
-    up_y,
-    down_x,
-    down_y,
-    pad_x0,
-    pad_x1,
-    pad_y0,
-    pad_y1,
+    input: Var, kernel: Var, up_x, up_y, down_x, down_y, pad_x0, pad_x1, pad_y0, pad_y1,
 ):
     _, channel, in_h, in_w = input.shape
     input = input.reshape(-1, in_h, in_w, 1)
