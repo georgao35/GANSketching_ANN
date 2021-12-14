@@ -445,7 +445,11 @@ class Generator(nn.Module):
         skip = self.to_rgb1(out, latent[:, 1])
         i = 1
         for (conv1, conv2, noise1, noise2, to_rgb) in zip(
-            self.convs[::2], self.convs[1::2], noise[1::2], noise[2::2], self.to_rgbs
+            list(self.convs)[::2],
+            list(self.convs)[1::2],
+            list(noise)[1::2],
+            list(noise)[2::2],
+            self.to_rgbs,
         ):
             out = conv1(out, latent[:, i], noise=noise1)
             out = conv2(out, latent[:, (i + 1)], noise=noise2)
