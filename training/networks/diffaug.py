@@ -10,7 +10,7 @@ class DiffAugment(nn.Module):
         self.policy = policy
         self.channels_first = channels_first
 
-    def forward(self, x: Var):
+    def execute(self, x: Var):
         if self.policy:
             if not self.channels_first:
                 x = x.permute(0, 3, 1, 2)

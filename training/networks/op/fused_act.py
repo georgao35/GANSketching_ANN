@@ -146,7 +146,7 @@ class FusedLeakyReLU(nn.Module):
         self.negative_slope = negative_slope
         self.scale = scale
 
-    def forward(self, input):
+    def execute(self, input):
         return fused_leaky_relu(input, self.bias, self.negative_slope, self.scale)
 
 
@@ -157,9 +157,7 @@ def fused_leaky_relu(input: Var, bias: Var = None, negative_slope=0.2, scale=2 *
         if bias is not None:
             rest_dim = [1] * (input.ndim - bias.ndim - 1)
             return (
-                nn.leaky_relu(
-                    input + bias.view(1, bias.shape[0], *rest_dim), negative_slope=0.2
-                )
+                nn.leaky_relu(input + bias.view(1, bias.shape[0], *rest_dim), 0.2)
                 * scale
             )
         else:

@@ -62,7 +62,7 @@ class Downsample(nn.Module):
 
         self.pad = (pad0, pad1)
 
-    def forward(self, input):
+    def execute(self, input):
         out = upfirdn2d(input, self.kernel, up=1, down=self.factor, pad=self.pad)
         return out
 
@@ -82,7 +82,7 @@ class Blur(nn.Module):
 
         self.pad = pad
 
-    def forward(self, input):
+    def execute(self, input):
         out = upfirdn2d(input, self.kernel, pad=self.pad)
         return out
 
@@ -234,7 +234,7 @@ class NoiseInjection(nn.Module):
 
         self.weight = nn.Parameter(jt.zeros(1))
 
-    def forward(self, image, noise=None):
+    def execute(self, image, noise=None):
         if noise is None:
             batch, _, height, width = image.shape
             noise = jt.randn_like(image)
@@ -393,7 +393,7 @@ class Generator(nn.Module):
 
     def mean_latent(self, n_latent):
         latent_in = jt.randn(n_latent, self.style_dim)
-        latent = self.style(latent_in).mean(0, keepdim=True)
+        latent = self.style(latent_in).mean(0, keepdims=True)
         return latent
 
     def get_latent(self, input):

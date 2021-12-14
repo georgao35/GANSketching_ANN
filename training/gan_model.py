@@ -30,7 +30,7 @@ class GANModel(Module):
         )
 
     # Entry point for all calls involving forward pass of deep networks.
-    def forward(self, data, mode):
+    def execute(self, data, mode):
         real_sketch, real_image = self.preprocess_input(data)
 
         if mode == "generator":

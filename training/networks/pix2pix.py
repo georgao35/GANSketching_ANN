@@ -52,7 +52,7 @@ class ResnetGenerator(nn.Module):
 
         self.model = nn.Sequential(*model)
 
-    def forward(self, input):
+    def execute(self, input):
         return self.model(input)
             
 
@@ -95,6 +95,6 @@ class ResnetBlock(nn.Module):
 
         return nn.Sequential(*conv_block)
 
-    def forward(self, x):
+    def execute(self, x):
         out = x + self.conv_block(x)
         return out
