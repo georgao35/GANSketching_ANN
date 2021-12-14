@@ -5,8 +5,8 @@ import numpy as np
 
 import math, random
 
-from op.fused_act import fused_leaky_relu, FusedLeakyReLU
-from op.upfirdn2d import upfirdn2d
+from .op.fused_act import fused_leaky_relu, FusedLeakyReLU
+from .op.upfirdn2d import upfirdn2d
 
 
 class PixelNorm(nn.Module):
@@ -116,7 +116,9 @@ class EqualLinear(nn.Module):
         super().__init__()
         self.weight = jt.array(np.random.randn(out_dim, in_dim) / lr_mul).float32()
         if bias:
-            self.bias = jt.array(np.zeros(out_dim).fill(bias_init)).float32().stop_grad()
+            x = np.zeros(out_dim)
+            x.fill(bias_init)
+            self.bias = jt.array(x).float32().stop_grad()
         else:
             self.bias = None
         self.activation = activation
@@ -233,7 +235,7 @@ class WShift(nn.Module):
 
     def __init__(self, style_dim):
         super().__init__()
-        self.w_shift = jt.array(jt.zeros(1, style_dim))
+        self.w_shift = jt.array(jt.zeros((1, style_dim)))
 
     def execute(self, input):
         out = (input + self.w_shift)
@@ -262,7 +264,7 @@ class ToRGB(nn.Module):
         if upsample:
             self.upsample = Upsample(blur_kernel)
         self.conv = ModulatedConv2d(in_channel, 3, 1, style_dim, demodulate=False)
-        self.bias = jt.array(jt.zeros(1, 3, 1, 1))
+        self.bias = jt.array(jt.zeros((1, 3, 1, 1)))
 
     def execute(self, input, style, skip=None):
         out = self.conv(input, style)
