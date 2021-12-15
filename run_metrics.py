@@ -143,6 +143,10 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, default="cuda")
     opt = parser.parse_args()
 
+    if opt.device != "cpu":
+        print("Jittor: use cuda")
+        jt.flags.use_cuda = 1
+
     with open(opt.models_list, "r") as f:
         lst = [s.strip().split(" ") for s in f.readlines()]
         all_models, all_targets = zip(*lst)

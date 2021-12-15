@@ -1,5 +1,6 @@
 import time
 import multiprocessing as mp
+import jittor as jt
 
 from options import get_opt, print_options
 from eval import Evaluator
@@ -13,20 +14,23 @@ def training_loop():
     opt, parser = get_opt()
     opt.isTrain = True
 
+    if not opt.use_cpu and jt.has_cuda:
+        print("Jittor: use cuda")
+        jt.flags.use_cuda = 1
+
     # needs to switch to spawn mode to be compatible with evaluation
     if not opt.disable_eval:
-        mp.set_start_method('spawn')
+        mp.set_start_method("spawn")
 
     # dataloader for user sketches
-    dataloader_sketch, sampler_sketch = create_dataloader(opt.dataroot_sketch,
-                                                          opt.size,
-                                                          opt.batch,
-                                                          opt.sketch_channel)
+    dataloader_sketch, sampler_sketch = create_dataloader(
+        opt.dataroot_sketch, opt.size, opt.batch, opt.sketch_channel
+    )
     # dataloader for image regularization
     if opt.dataroot_image is not None:
-        dataloader_image, sampler_image = create_dataloader(opt.dataroot_image,
-                                                            opt.size,
-                                                            opt.batch)
+        dataloader_image, sampler_image = create_dataloader(
+            opt.dataroot_image, opt.size, opt.batch
+        )
         data_yield_image = yield_data(dataloader_image, sampler_image)
 
     trainer = GANTrainer(opt)
@@ -35,7 +39,9 @@ def training_loop():
     trainer.gan_model.print_trainable_params()
     if not opt.disable_eval:
         evaluator = Evaluator(opt, trainer.get_gan_model())
-    visualizer = Visualizer(opt)   # create a visualizer that display/save images and plots
+    visualizer = Visualizer(
+        opt
+    )  # create a visualizer that display/save images and plots
 
     # the total number of training iterations
     if opt.resume_iter is None:
@@ -45,19 +51,21 @@ def training_loop():
 
     optimize_time = 0.1
     for epoch in range(opt.max_epoch):
-        iter_data_time = time.time()    # timer for data loading per iteration
-        epoch_iter = 0                  # the number of training iterations in current epoch, reset to 0 every epoch
+        iter_data_time = time.time()  # timer for data loading per iteration
+        epoch_iter = 0  # the number of training iterations in current epoch, reset to 0 every epoch
 
-        for i, data_sketch in enumerate(dataloader_sketch):  # inner loop within one epoch
+        for i, data_sketch in enumerate(
+            dataloader_sketch
+        ):  # inner loop within one epoch
             if total_iters >= opt.max_iter:
                 return
 
             # makes dictionary to store all inputs
             data = {}
-            data['sketch'] = data_sketch
+            data["sketch"] = data_sketch
             if opt.dataroot_image is not None:
                 data_image = next(data_yield_image)
-                data['image'] = data_image
+                data["image"] = data_image
 
             # timer for data loading per iteration
             iter_start_time = time.time()
@@ -67,12 +75,16 @@ def training_loop():
             # timer for optimization per iteration
             optimize_start_time = time.time()
             trainer.train_one_step(data, total_iters)
-            optimize_time = (time.time() - optimize_start_time) * 0.005 + 0.995 * optimize_time
+            optimize_time = (
+                time.time() - optimize_start_time
+            ) * 0.005 + 0.995 * optimize_time
 
             # print training losses and save logging information to the disk
             if total_iters % opt.print_freq == 0:
                 losses = trainer.get_latest_losses()
-                visualizer.print_current_errors(epoch, total_iters, losses, optimize_time, t_data)
+                visualizer.print_current_errors(
+                    epoch, total_iters, losses, optimize_time, t_data
+                )
                 visualizer.plot_current_errors(losses, total_iters)
 
             # display images on wandb and save images to a HTML file
@@ -82,8 +94,13 @@ def training_loop():
 
             # cache our latest model every <save_latest_freq> iterations
             if total_iters % opt.save_freq == 0:
-                print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
-                print(opt.name)  # it's useful to occasionally show the experiment name on console
+                print(
+                    "saving the latest model (epoch %d, total_iters %d)"
+                    % (epoch, total_iters)
+                )
+                print(
+                    opt.name
+                )  # it's useful to occasionally show the experiment name on console
                 trainer.save(total_iters)
 
             # evaluate the latest model
@@ -92,7 +109,9 @@ def training_loop():
                 metrics, best_so_far = evaluator.run_metrics(total_iters)
                 metrics_time = time.time() - metrics_start_time
 
-                visualizer.print_current_metrics(epoch, total_iters, metrics, metrics_time)
+                visualizer.print_current_metrics(
+                    epoch, total_iters, metrics, metrics_time
+                )
                 visualizer.plot_current_errors(metrics, total_iters)
 
             total_iters += 1
@@ -102,4 +121,4 @@ def training_loop():
 
 if __name__ == "__main__":
     training_loop()
-    print('Training was successfully finished.')
+    print("Training was successfully finished.")
