@@ -5,6 +5,8 @@ import numpy as np
 
 import math, random
 
+from training.networks.conv_transpose import group_conv_transpose
+
 from .op.fused_act import fused_leaky_relu, FusedLeakyReLU
 from .op.upfirdn2d import upfirdn2d
 
@@ -209,7 +211,7 @@ class ModulatedConv2d(nn.Module):
             weight = weight.transpose(1, 2).reshape(
                 batch * in_channel, self.out_channel, self.kernel_size, self.kernel_size
             )
-            out = jt.cudnn_ops.cudnn_conv_backward_x(input, weight, padding=0, stride=2, groups=batch)
+            out = group_conv_transpose(input, weight, padding=0, stride=2, groups=batch)
             (_, _, height, width) = out.shape
             out = out.view((batch, self.out_channel, height, width))
             out = self.blur(out)
