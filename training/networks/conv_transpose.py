@@ -23,4 +23,4 @@ def group_conv_transpose(input, weight, bias=None, stride=1, padding=0, output_p
     w_out = (W-1) * stride_w + output_padding[1] - 2*padding_w + 1 + (w-1)*dilation_w
     out_shape = (N, o, h_out, w_out)
     shape = (N, i, o, H, W, h, w)
-    jt.cudnn_ops.cudnn_conv_backward_x(weight, input, h_out, w_out, stride_h, stride_w, padding_h, padding_w, dilation_h, dilation_w, groups)
+    return jt.cudnn.ops.cudnn_conv_backward_x(weight, input, h_out, w_out, stride_h, stride_w, padding_h, padding_w, dilation_h, dilation_w, groups)

@@ -85,7 +85,9 @@ class Blur(nn.Module):
         self.pad = pad
 
     def execute(self, input):
+        print('input',input.shape)
         out = upfirdn2d(input, self.kernel, pad=self.pad)
+        print('output',out.shape)
         return out
 
 
@@ -137,10 +139,10 @@ class EqualLinear(nn.Module):
 
     def execute(self, input):
         if self.activation:
-            out = nn.matmul(input, (self.weight * self.scale))
+            out = nn.matmul_transpose(input, (self.weight * self.scale))
             out = fused_leaky_relu(out, (self.bias * self.lr_mul))
         else:
-            out = nn.matmul(input, (self.weight * self.scale))
+            out = nn.matmul_transpose(input, (self.weight * self.scale))
             out += self.bias * self.lr_mul
         return out
 
