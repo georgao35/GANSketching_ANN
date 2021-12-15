@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # device = args.device
+    device = args.device
     if args.device != "cpu" and jt.has_cuda:
         print("Jittor: use cuda")
         jt.flags.use_cuda = 1

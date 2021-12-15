@@ -34,9 +34,9 @@ class Upsample(nn.Module):
     def __init__(self, kernel, factor=2):
         super().__init__()
         self.factor = factor
-        kernel = make_kernel(kernel) * (factor ** 2)
+        kernel: Var = make_kernel(kernel) * (factor ** 2)
         # TODO check buffer
-        self.kernel = kernel
+        self.kernel = kernel.stop_grad()
         p = kernel.shape[0] - factor
         pad0 = (((p + 1) // 2) + factor) - 1
         pad1 = p // 2
@@ -85,9 +85,7 @@ class Blur(nn.Module):
         self.pad = pad
 
     def execute(self, input):
-        print('input',input.shape)
         out = upfirdn2d(input, self.kernel, pad=self.pad)
-        print('output',out.shape)
         return out
 
 
