@@ -15,4 +15,4 @@ tqdm
 wandb
 clean-fid
 jittor
-tensorflow-gpu
+tensorflow-gpu==1.15
