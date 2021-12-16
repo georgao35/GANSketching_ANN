@@ -138,7 +138,7 @@ class FusedLeakyReLU(nn.Module):
         super().__init__()
 
         if bias:
-            self.bias = nn.Parameter(jt.zeros(channel))
+            self.bias = jt.zeros(channel)
 
         else:
             self.bias = None

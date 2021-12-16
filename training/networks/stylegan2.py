@@ -234,7 +234,7 @@ class NoiseInjection(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.weight = nn.Parameter(jt.zeros(1))
+        self.weight = jt.zeros(1)
 
     def execute(self, image, noise=None):
         if noise is None:
