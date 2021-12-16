@@ -152,7 +152,7 @@ if __name__ == "__main__":
         all_models, all_targets = zip(*lst)
 
     jt.flags.no_grad = True
-    mp.set_start_method("spawn")
+    # mp.set_start_method("spawn")
 
     metrics = OrderedDict()
     for name, target in zip(all_models, all_targets):
