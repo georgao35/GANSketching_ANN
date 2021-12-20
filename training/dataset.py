@@ -23,17 +23,29 @@ class ImagePathDataset(Dataset):
             self.files = files
         self.transform = transform
         self.image_mode = image_mode
+        self.mean, self.std = [0.5 for _ in range(3)], [0.5 for _ in range(3)]
 
     def __getitem__(self, index):
         image_path = self.files[index]
         image = Image.open(image_path).convert(self.image_mode)
         if self.transform is not None:
             image = self.transform(image)
+            # change transforms.Normalize to here
+            # img_channel=3?
+            image = transforms.image_normalize(image, self.mean, self.std)
         return image
 
     def __len__(self):
         return len(self.files)
 
+# class LmdbDataset(Dataset):
+#     def __init__(self, path, image_mode='L', transform=None, max_images=None):
+#         path = pathlib.Path(path)
+        
+#         self.transform = transform
+#         self.image_mode = image_mode
+
+        
 
 def data_sampler(dataset, shuffle):
     if shuffle:
@@ -47,7 +59,7 @@ def create_dataloader(data_dir, size, batch, img_channel=3):
     transform = transforms.Compose([
             transforms.Resize(size),
             transforms.ToTensor(),
-            transforms.Normalize(mean, std, inplace=True),
+            # transforms.Normalize(mean, std, inplace=True),
         ])
 
     if img_channel == 1:
