@@ -6,7 +6,7 @@ python train.py \
 --g_pretrained /mnt/disk/zw/pretrained/stylegan2-cat/netG.pth \
 --d_pretrained /mnt/disk/zw/pretrained/stylegan2-cat/netD.pth \
 --max_iter 150000 --disable_eval --diffaug_policy translation \
---resume_iter 24000 \
+--resume_iter 26000 \
 --checkpoints_dir /mnt/disk/zw/checkpoint/ \
 --photosketch_path /mnt/disk/zw/pretrained/photosketch.pth \
 2> ./warning/teaser_cat_augment.txt

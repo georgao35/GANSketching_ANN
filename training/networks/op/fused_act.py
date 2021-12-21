@@ -110,6 +110,7 @@ class FusedLeakyReLUFunction(Function):
     def grad(self, grad_output: Var):
         if grad_output is None:
             return None, None, None, None
+        # print("fused_act not None")
         out = self.save_vars
 
         empty = jt.empty(shape=(0,), dtype=grad_output.dtype)
@@ -153,8 +154,8 @@ class FusedLeakyReLU(nn.Module):
 
 
 def fused_leaky_relu(input: Var, bias: Var = None, negative_slope=0.2, scale=2 ** 0.5):
-    # if jt.flags.use_cuda:
-    if False:
+    if jt.flags.use_cuda:
+    # if False:
         return FusedLeakyReLUFunction.apply(input, bias, negative_slope, scale)
     else:
         if bias is not None:

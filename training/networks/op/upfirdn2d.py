@@ -408,6 +408,7 @@ class UpFirDn2d(Function):
     def grad(self, grad_output):
         if grad_output is None:
             return None, None, None, None, None
+        # print("updirdn2d not None")
         up_x, up_y = self.up
         down_x, down_y = self.down
         g_pad_x0, g_pad_x1, g_pad_y0, g_pad_y1 = self.g_pad
@@ -432,8 +433,8 @@ class UpFirDn2d(Function):
 
 
 def upfirdn2d(input, kernel, up=1, down=1, pad=(0, 0)):
-    if False:
-    # if jt.flags.use_cuda:
+    # if False:
+    if jt.flags.use_cuda:
         out = UpFirDn2d.apply(
             input, kernel, (up, up), (down, down), (pad[0], pad[1], pad[0], pad[1])
         )
