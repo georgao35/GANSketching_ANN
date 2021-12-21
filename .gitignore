@@ -135,6 +135,7 @@ wandb/
 checkpoint/
 samples/
 cache_eval/
+cache_files/
 output/
 .vscode/
 *.pth

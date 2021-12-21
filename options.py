@@ -19,7 +19,7 @@ def get_opt():
     parser.add_argument('--display_winsize', type=int, default=400, help='display window size')
     parser.add_argument("--print_freq", type=int, default=50, help="frequency to print out current logs in stdout")
     parser.add_argument("--display_freq", type=int, default=2500, help="frequency to display visualizations")
-    parser.add_argument("--save_freq", type=int, default=500, help="frequency to save model checkpoints")
+    parser.add_argument("--save_freq", type=int, default=2000, help="frequency to save model checkpoints")
     parser.add_argument("--eval_freq", type=int, default=5000, help="frequency to evaluate current results")
     parser.add_argument("--disable_eval", action="store_true", help="use this flag to disable evaluation during training")
     parser.add_argument("--eval_batch", type=int, default=50, help="batch size used to generate images for evaluation")

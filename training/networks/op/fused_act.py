@@ -151,7 +151,8 @@ class FusedLeakyReLU(nn.Module):
 
 
 def fused_leaky_relu(input: Var, bias: Var = None, negative_slope=0.2, scale=2 ** 0.5):
-    if jt.flags.use_cuda:
+    # if jt.flags.use_cuda:
+    if False:
         return FusedLeakyReLUFunction.apply(input, bias, negative_slope, scale)
     else:
         if bias is not None:

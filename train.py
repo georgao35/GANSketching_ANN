@@ -7,7 +7,7 @@ from eval import Evaluator
 from util.visualizer import Visualizer
 from training.gan_trainer import GANTrainer
 from training.dataset import create_dataloader, yield_data, create_lmdb_dataloader
-import sys
+# import sys
 
 
 
@@ -16,7 +16,7 @@ def training_loop():
     opt, parser = get_opt()
     opt.isTrain = True
 
-    sys.stderr = open('./warning/' + opt.name + '.txt')
+    # sys.stderr = open('./warning/' + opt.name + '.txt')
 
     if not opt.use_cpu and jt.has_cuda:
         print("Jittor: use cuda")

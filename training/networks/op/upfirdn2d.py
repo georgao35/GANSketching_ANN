@@ -430,7 +430,8 @@ class UpFirDn2d(Function):
 
 
 def upfirdn2d(input, kernel, up=1, down=1, pad=(0, 0)):
-    if jt.flags.use_cuda:
+    if False:
+    # if jt.flags.use_cuda:
         out = UpFirDn2d.apply(
             input, kernel, (up, up), (down, down), (pad[0], pad[1], pad[0], pad[1])
         )
