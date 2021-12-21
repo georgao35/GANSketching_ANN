@@ -9,9 +9,26 @@ from training.networks.stylegan2 import Generator
 
 def save_image_pytorch(img, name):
     """Helper function to save torch tensor into an image file."""
-    jt.save_image(
-        img, name, nrow=1, padding=0, normalize=True, range=(-1, 1),
+    # jt.save_image(
+    #     img, name, nrow=1, padding=0, normalize=True, range=(-1, 1),
+    # )
+    from PIL import Image
+
+    grid = jt.make_grid(
+        img,
+        nrow=1,
+        padding=0,
+        pad_value=0,
+        normalize=True,
+        range=(-1, 1),
+        scale_each=False,
     )
+    # ndarr = (grid * 255 + 0.5).clamp(0, 255).permute(1, 2, 0).uint8().numpy()
+    ndarr = grid.numpy().transpose((1, 2, 0))
+    ndarr = np.clip((ndarr + 1) / 2, 0, 1)
+    ndarr = (ndarr * 255).astype(np.uint8)
+    im = Image.fromarray(ndarr)
+    im.save(name, format=None)
 
 
 def generate(args, netG, device, mean_latent):
