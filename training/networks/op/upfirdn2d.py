@@ -406,6 +406,8 @@ class UpFirDn2d(Function):
         return out
 
     def grad(self, grad_output):
+        if grad_output is None:
+            return None, None, None, None, None
         up_x, up_y = self.up
         down_x, down_y = self.down
         g_pad_x0, g_pad_x1, g_pad_y0, g_pad_y1 = self.g_pad

@@ -108,6 +108,8 @@ class FusedLeakyReLUFunction(Function):
         return out
 
     def grad(self, grad_output: Var):
+        if grad_output is None:
+            return None, None, None, None
         out = self.save_vars
 
         empty = jt.empty(shape=(0,), dtype=grad_output.dtype)
