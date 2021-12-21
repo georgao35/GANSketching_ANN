@@ -42,8 +42,8 @@ def rand_contrast(x):
 
 def rand_translation(x, ratio=0.125):
     shift_x, shift_y = int(x.size(2) * ratio + 0.5), int(x.size(3) * ratio + 0.5)
-    translation_x = jittor.randint(-shift_x, shift_x + 1, size=[x.size(0), 1, 1])
-    translation_y = jittor.randint(-shift_y, shift_y + 1, size=[x.size(0), 1, 1])
+    translation_x = jittor.randint(-shift_x, shift_x + 1, shape=[x.size(0), 1, 1])
+    translation_y = jittor.randint(-shift_y, shift_y + 1, shape=[x.size(0), 1, 1])
     grid_batch, grid_x, grid_y = jittor.meshgrid(
         # modify jittor.long -> jittor.int64
         jittor.arange(x.size(0), dtype=jittor.int64),

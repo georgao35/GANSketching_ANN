@@ -4,11 +4,22 @@ from jittor import nn
 import numpy as np
 
 import math, random
+# from training.networks.misc import myVar
+# import training.networks.misc
 
 from training.networks.conv_transpose import group_conv_transpose
 
 from .op.fused_act import fused_leaky_relu, FusedLeakyReLU
 from .op.upfirdn2d import upfirdn2d
+
+def myVar(x:Var, dim=0):
+    matsize= x.shape[dim]
+    # for i in x.shape:
+    #     matsize *= i
+    out=(x-x.mean(dim=dim)).sqr().sum(dim=dim)
+    out=out/(matsize)
+    # out=out.maximum(1e-6)
+    return out
 
 
 class PixelNorm(nn.Module):
@@ -124,11 +135,13 @@ class EqualLinear(nn.Module):
         self, in_dim, out_dim, bias=True, bias_init=0, lr_mul=1, activation=None
     ):
         super().__init__()
-        self.weight = jt.array(np.random.randn(out_dim, in_dim) / lr_mul).float32()
+        # self.weight = jt.array(np.random.randn(out_dim, in_dim) / lr_mul, dtype="float32")
+        self.weight = jt.randn((out_dim, in_dim), dtype="float32").divide(lr_mul)
         if bias:
-            x = np.zeros(out_dim)
-            x.fill(bias_init)
-            self.bias = jt.array(x).float32().stop_grad()
+            # x = np.zeros(out_dim)
+            # x.fill(bias_init)
+            # self.bias = jt.array(x, dtype="float32")
+            self.bias = jt.full(out_dim, bias_init, dtype="float32")
         else:
             self.bias = None
         self.activation = activation
@@ -563,7 +576,7 @@ class Discriminator(nn.Module):
                 width,
             )
         )
-        stddev = jt.sqrt((stddev.var(0, unbiased=False) + 1e-08))
+        stddev = jt.sqrt((myVar(stddev, 0) + 1e-08))
         stddev = stddev.mean([2, 3, 4], keepdims=True).squeeze(2)
         stddev = stddev.repeat(group, 1, height, width)
         out = jt.contrib.concat([out, stddev], dim=1)

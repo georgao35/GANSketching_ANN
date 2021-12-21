@@ -6,13 +6,17 @@ from options import get_opt, print_options
 from eval import Evaluator
 from util.visualizer import Visualizer
 from training.gan_trainer import GANTrainer
-from training.dataset import create_dataloader, yield_data
+from training.dataset import create_dataloader, yield_data, create_lmdb_dataloader
+import sys
+
 
 
 def training_loop():
 
     opt, parser = get_opt()
     opt.isTrain = True
+
+    sys.stderr = open('./warning/' + opt.name + '.txt')
 
     if not opt.use_cpu and jt.has_cuda:
         print("Jittor: use cuda")
@@ -28,7 +32,7 @@ def training_loop():
     )
     # dataloader for image regularization
     if opt.dataroot_image is not None:
-        dataloader_image, sampler_image = create_dataloader(
+        dataloader_image, sampler_image = create_lmdb_dataloader(
             opt.dataroot_image, opt.size, opt.batch
         )
         data_yield_image = yield_data(dataloader_image, sampler_image)

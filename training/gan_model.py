@@ -88,7 +88,7 @@ class GANModel(Module):
 
     def create_loss_fns(self, opt):
         self.criterionGAN = networks.GANLoss(
-            opt.gan_mode, tensor=self.FloatTensor, opt=self.opt
+            opt.gan_mode, opt=self.opt
         )
         if opt.l_weight > 0:
             self.weight_loss = networks.WeightLoss(self.G_params)
@@ -97,9 +97,15 @@ class GANModel(Module):
 
     def set_requires_grad(self, g_requires_grad=None, d_requires_grad=None):
         if g_requires_grad is not None:
-            networks.set_requires_grad(self.G_params, g_requires_grad)
+            self.netG.requires_grad_(g_requires_grad)
+            # networks.set_requires_grad(self.G_params, g_requires_grad)
         if d_requires_grad is not None:
-            networks.set_requires_grad(self.D_params, d_requires_grad)
+            if isinstance(self.netD, list):
+                for net in self.netD:
+                    net.requires_grad_(d_requires_grad)
+            else:
+                self.netD.requires_grad_(d_requires_grad)
+            # networks.set_requires_grad(self.D_params, d_requires_grad)
 
     def inference(self, noise, trunc_psi=1.0, mean_latent=None, with_tf=False):
         with jt.no_grad():
@@ -137,22 +143,22 @@ class GANModel(Module):
         save_path = os.path.join(
             self.opt.checkpoints_dir, self.opt.name, f"{iters}_net_"
         )
-        jt.save(self.netG.state_dict(), save_path + "G.pth")
-        jt.save(self.netD_sketch.state_dict(), save_path + "D_sketch.pth")
+        jt.save(self.netG.state_dict(), save_path + "G.jtr")
+        jt.save(self.netD_sketch.state_dict(), save_path + "D_sketch.jtr")
         if self.opt.l_image > 0:
-            jt.save(self.netD_image.state_dict(), save_path + "D_image.pth")
+            jt.save(self.netD_image.state_dict(), save_path + "D_image.jtr")
 
     def load(self, iters):
         load_path = os.path.join(
             self.opt.checkpoints_dir, self.opt.name, f"{iters}_net_"
         )
-        state_dict_g = jt.load(load_path + "G.pth")
+        state_dict_g = jt.load(load_path + "G.jtr")
         self.netG.load_state_dict(state_dict_g)
 
-        state_dict_d_sketch = jt.load(load_path + "D_sketch.pth")
+        state_dict_d_sketch = jt.load(load_path + "D_sketch.jtr")
         self.netD_sketch.load_state_dict(state_dict_d_sketch)
         if self.opt.l_image > 0:
-            state_dict_d_image = jt.load(load_path + "D_image.pth")
+            state_dict_d_image = jt.load(load_path + "D_image.jtr")
             self.netD_image.load_state_dict(state_dict_d_image)
 
     ############################################################################
@@ -165,7 +171,7 @@ class GANModel(Module):
 
         if opt.g_pretrained != "":
             weights = jt.load(opt.g_pretrained)
-            netG.load_state_dict(weights, strict=False)
+            netG.load_state_dict(weights)
 
         if (
             netD_sketch is not None
@@ -205,9 +211,9 @@ class GANModel(Module):
         # data['noise'] = data.get('noise', None)
         data["image"] = data.get("image", None)
         if self.use_gpu():
-            data["sketch"] = data["sketch"].cuda()
+            data["sketch"] = data["sketch"]
             if data["image"] is not None:
-                data["image"] = data["image"].cuda()
+                data["image"] = data["image"]
         return data["sketch"], data["image"]
 
     def compute_generator_loss(self):

@@ -40,8 +40,8 @@ class GANTrainer():
         g_losses, generated = self.gan_model(data, mode='generator')
         g_loss = sum(g_losses.values()).mean()
         self.optimizer_G.zero_grad()
-        g_loss.backward()
-        self.optimizer_G.step()
+        # g_loss.backward()
+        self.optimizer_G.step(g_loss)
         self.generated = generated
         update_dict(self.g_losses, g_losses)
 
@@ -50,8 +50,8 @@ class GANTrainer():
         g_reg_losses, trackables = output
         g_reg_loss = sum(g_reg_losses.values()).mean()
         self.optimizer_G.zero_grad()
-        g_reg_loss.backward()
-        self.optimizer_G.step()
+        # g_reg_loss.backward()
+        self.optimizer_G.step(g_reg_loss)
         update_dict(self.g_losses, g_reg_losses)
         update_dict(self.trackables, trackables)
 
@@ -59,8 +59,8 @@ class GANTrainer():
         d_losses, interm_imgs = self.gan_model(data, mode='discriminator')
         d_loss = sum(d_losses.values()).mean()
         self.optimizer_D.zero_grad()
-        d_loss.backward()
-        self.optimizer_D.step()
+        # d_loss.backward()
+        self.optimizer_D.step(d_loss)
         update_dict(self.d_losses, d_losses)
         update_dict(self.interm_imgs, interm_imgs)
 
@@ -68,8 +68,8 @@ class GANTrainer():
         d_reg_losses = self.gan_model(data, mode='discriminator-regularize')
         d_reg_loss = sum(d_reg_losses.values()).mean()
         self.optimizer_D.zero_grad()
-        d_reg_loss.backward()
-        self.optimizer_D.step()
+        # d_reg_loss.backward()
+        self.optimizer_D.step(d_reg_loss)
         update_dict(self.d_losses, d_reg_losses)
 
     def train_one_step(self, data, iters):
@@ -116,24 +116,24 @@ class GANTrainer():
             "opt": self.opt,
         }
         save_path = os.path.join(self.opt.checkpoints_dir, self.opt.name, f"{iters}_net_")
-        jittor.save(misc, save_path + "misc.pth")
+        jittor.save(misc, save_path + "misc.jtr")
 
     def load(self, iters):
         print(f"Resuming model at iteration {iters}")
         self.gan_model.load(iters)
         load_path = os.path.join(self.opt.checkpoints_dir, self.opt.name, f"{iters}_net_")
-        state_dict = jittor.load(load_path + "misc.pth")
+        state_dict = jittor.load(load_path + "misc.jtr")
         self.optimizer_G.load_state_dict(state_dict["g_optim"])
         self.optimizer_D.load_state_dict(state_dict["d_optim"])
 
     def set_fixed_noise(self, device):
         os.makedirs('./cache_files/', exist_ok=True)
         if self.opt.reduce_visuals:
-            sample_z_file = './cache_files/sample_z_reduced.pth'
-            interp_z_file = './cache_files/interp_z_reduced.pth'
+            sample_z_file = './cache_files/sample_z_reduced.jtr'
+            interp_z_file = './cache_files/interp_z_reduced.jtr'
         else:
-            sample_z_file = './cache_files/sample_z.pth'
-            interp_z_file = './cache_files/interp_z.pth'
+            sample_z_file = './cache_files/sample_z.jtr'
+            interp_z_file = './cache_files/interp_z.jtr'
 
         if os.path.exists(sample_z_file):
             self.sample_z = jittor.load(sample_z_file)
