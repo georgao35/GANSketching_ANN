@@ -42,7 +42,7 @@ def get_metrics(opt, name, target):
     real_folder = f"{opt.eval_root}/{target}/"
     fake_folder = f"{opt.sample_root}/{name}/"
 
-    ckpt_path = f"{opt.model_root}/{name}.pth"
+    ckpt_path = f"{opt.model_root}/{name}.{opt.suffix}"
     g = setup_generator(ckpt_path)
     stats_fake = get_stats(opt, g, fake_folder)
     stats_real = get_stats(opt, None, real_folder)
@@ -141,6 +141,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=50)
     parser.add_argument("--eval_samples", type=int, default=2500)
     parser.add_argument("--device", type=str, default="cuda")
+    parser.add_argument("--suffix", type=str, default="jtr")
     opt = parser.parse_args()
 
     if opt.device != "cpu":

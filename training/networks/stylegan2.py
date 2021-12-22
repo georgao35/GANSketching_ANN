@@ -471,6 +471,7 @@ class Generator(nn.Module):
             skip = to_rgb(out, latent[:, (i + 2)], skip)
             i += 2
         image = skip
+        # print("Grad for self.convs[0].weight: {}".format(jt.grad(image, self.convs[0].conv.weight[0][0][0][0][0])))
         if return_latents:
             return (image, latent)
         else:
