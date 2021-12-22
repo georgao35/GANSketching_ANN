@@ -97,15 +97,15 @@ class GANModel(Module):
 
     def set_requires_grad(self, g_requires_grad=None, d_requires_grad=None):
         if g_requires_grad is not None:
-            self.netG.requires_grad_(g_requires_grad)
-            # networks.set_requires_grad(self.G_params, g_requires_grad)
+            # self.netG.requires_grad_(g_requires_grad)
+            networks.set_requires_grad(self.G_params, g_requires_grad)
         if d_requires_grad is not None:
-            if isinstance(self.netD, list):
-                for net in self.netD:
-                    net.requires_grad_(d_requires_grad)
-            else:
-                self.netD.requires_grad_(d_requires_grad)
-            # networks.set_requires_grad(self.D_params, d_requires_grad)
+            # if isinstance(self.netD, list):
+            #     for net in self.netD:
+            #         net.requires_grad_(d_requires_grad)
+            # else:
+            #     self.netD.requires_grad_(d_requires_grad)
+            networks.set_requires_grad(self.D_params, d_requires_grad)
 
     def inference(self, noise, trunc_psi=1.0, mean_latent=None, with_tf=False):
         with jt.no_grad():
