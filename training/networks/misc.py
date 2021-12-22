@@ -25,12 +25,8 @@ def define_D(opt):
 
 
 def set_requires_grad(params, flag):
-    if flag:
-        # TODO: how to enable grad?
-        assert False
-    else:
-        for p in params:
-            p.stop_grad()
+    for p in params:
+        p.requires_grad = flag
 
 
 def accumulate(model1: Module, model2: Module, decay=0.999):
