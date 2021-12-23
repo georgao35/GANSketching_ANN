@@ -42,9 +42,6 @@ class ImagePathDataset(Dataset):
         image = Image.open(image_path).convert(self.image_mode)
         if self.transform is not None:
             image = self.transform(image)
-            # change transforms.Normalize to here
-            # img_channel=3?
-            image = transforms.image_normalize(image, self.mean, self.std)
         return image
 
     def __len__(self):
