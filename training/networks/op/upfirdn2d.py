@@ -406,8 +406,8 @@ class UpFirDn2dBackward(Function):
         return grad_input
 
     def grad(ctx, gradgrad_input):
-        if gradgrad_input is None:
-            return None, None, None, None, None, None, None, None, None
+        # if gradgrad_input is None:
+        #     return None, None, None, None, None, None, None, None, None
         (kernel,) = ctx.saved_tensors
 
         gradgrad_input = gradgrad_input.reshape(-1, ctx.in_size[2], ctx.in_size[3], 1)
@@ -470,8 +470,8 @@ class UpFirDn2d(Function):
         return out
 
     def grad(ctx, grad_output):
-        if grad_output is None:
-            return None, None, None, None, None
+        # if grad_output is None:
+        #     return None, None, None, None, None
         kernel, grad_kernel = ctx.saved_tensors
 
         grad_input = UpFirDn2dBackward.apply(
