@@ -4,6 +4,7 @@ from jittor import nn
 import numpy as np
 
 import math, random
+
 # from training.networks.misc import myVar
 # import training.networks.misc
 
@@ -12,12 +13,13 @@ from training.networks.conv_transpose import group_conv_transpose
 from .op.fused_act import fused_leaky_relu, FusedLeakyReLU
 from .op.upfirdn2d import upfirdn2d
 
-def myVar(x:Var, dim=0):
-    matsize= x.shape[dim]
+
+def myVar(x: Var, dim=0):
+    matsize = x.shape[dim]
     # for i in x.shape:
     #     matsize *= i
-    out=(x-x.mean(dim=dim)).sqr().sum(dim=dim)
-    out=out/(matsize)
+    out = (x - x.mean(dim=dim)).sqr().sum(dim=dim)
+    out = out / (matsize)
     # out=out.maximum(1e-6)
     return out
 
@@ -31,7 +33,7 @@ class PixelNorm(nn.Module):
 
 
 def make_kernel(k: Var) -> Var:
-    k = jt.float32(k)
+    k = jt.array(k, dtype="float32")
 
     if k.ndim == 1:
         k = k[None, :] * k[:, None]
@@ -47,14 +49,14 @@ class Upsample(nn.Module):
         self.factor = factor
         kernel: Var = make_kernel(kernel) * (factor ** 2)
         # TODO check buffer
-        self.kernel = kernel.stop_grad()
+        self._kernel = kernel.stop_grad()
         p = kernel.shape[0] - factor
         pad0 = (((p + 1) // 2) + factor) - 1
         pad1 = p // 2
         self.pad = (pad0, pad1)
 
     def execute(self, input):
-        out = upfirdn2d(input, self.kernel, up=self.factor, down=1, pad=self.pad)
+        out = upfirdn2d(input, self._kernel, up=self.factor, down=1, pad=self.pad)
         return out
 
 
@@ -66,7 +68,7 @@ class Downsample(nn.Module):
         kernel = make_kernel(kernel)
         # self.register_buffer("kernel", kernel)
         # TODO check buffer
-        self.kernel = kernel.stop_grad()
+        self._kernel = kernel.stop_grad()
 
         p = kernel.shape[0] - factor
 
@@ -76,7 +78,7 @@ class Downsample(nn.Module):
         self.pad = (pad0, pad1)
 
     def execute(self, input):
-        out = upfirdn2d(input, self.kernel, up=1, down=self.factor, pad=self.pad)
+        out = upfirdn2d(input, self._kernel, up=1, down=self.factor, pad=self.pad)
         return out
 
 
@@ -91,12 +93,12 @@ class Blur(nn.Module):
 
         # self.register_buffer("kernel", kernel)
         # TODO check buffer
-        self.kernel = kernel.stop_grad()
+        self._kernel = kernel.stop_grad()
 
         self.pad = pad
 
     def execute(self, input):
-        out = upfirdn2d(input, self.kernel, pad=self.pad)
+        out = upfirdn2d(input, self._kernel, pad=self.pad)
         return out
 
 
@@ -105,14 +107,12 @@ class EqualConv2d(nn.Module):
         self, in_channel, out_channel, kernel_size, stride=1, padding=0, bias=True
     ):
         super().__init__()
-        self.weight = jt.array(
-            jt.randn(out_channel, in_channel, kernel_size, kernel_size)
-        )
+        self.weight = jt.randn(out_channel, in_channel, kernel_size, kernel_size)
         self.scale = 1 / math.sqrt((in_channel * (kernel_size ** 2)))
         self.stride = stride
         self.padding = padding
         if bias:
-            self.bias = jt.array(jt.zeros(out_channel))
+            self.bias = jt.zeros(out_channel)
         else:
             self.bias = None
 
@@ -197,9 +197,7 @@ class ModulatedConv2d(nn.Module):
         fan_in = in_channel * (kernel_size ** 2)
         self.scale = 1 / math.sqrt(fan_in)
         self.padding = kernel_size // 2
-        self.weight = jt.array(
-            jt.randn(1, out_channel, in_channel, kernel_size, kernel_size)
-        )
+        self.weight = jt.randn(1, out_channel, in_channel, kernel_size, kernel_size)
         self.modulation = EqualLinear(style_dim, in_channel, bias_init=1)
         self.demodulate = demodulate
 
@@ -252,7 +250,7 @@ class NoiseInjection(nn.Module):
     def execute(self, image, noise=None):
         if noise is None:
             batch, _, height, width = image.shape
-            noise = jt.randn_like(image)
+            noise = jt.randn(batch, 1, height, width, dtype=image.dtype)
 
         return image + self.weight * noise
 
@@ -260,7 +258,7 @@ class NoiseInjection(nn.Module):
 class ConstantInput(nn.Module):
     def __init__(self, channel, size=4):
         super().__init__()
-        self.input = jt.array(jt.randn(1, channel, size, size))
+        self.input = jt.randn(1, channel, size, size)
 
     def execute(self, input):
         batch = input.shape[0]
@@ -271,7 +269,7 @@ class ConstantInput(nn.Module):
 class WShift(nn.Module):
     def __init__(self, style_dim):
         super().__init__()
-        self.w_shift = jt.array(jt.zeros((1, style_dim)))
+        self.w_shift = jt.zeros((1, style_dim))
 
     def execute(self, input):
         out = input + self.w_shift
@@ -315,7 +313,7 @@ class ToRGB(nn.Module):
         if upsample:
             self.upsample = Upsample(blur_kernel)
         self.conv = ModulatedConv2d(in_channel, 3, 1, style_dim, demodulate=False)
-        self.bias = jt.array(jt.zeros((1, 3, 1, 1)))
+        self.bias = jt.zeros((1, 3, 1, 1))
 
     def execute(self, input, style, skip=None):
         out = self.conv(input, style)
@@ -377,7 +375,7 @@ class Generator(nn.Module):
             res = (layer_idx + 5) // 2
             shape = [1, 1, (2 ** res), (2 ** res)]
             # TODO: check buffer
-            setattr(self.noises, f"noise_{layer_idx}", jt.randn(shape).stop_grad())
+            setattr(self.noises, f"_noise_{layer_idx}", jt.randn(shape).stop_grad())
         for i in range(3, (self.log_size + 1)):
             out_channel = self.channels[(2 ** i)]
             self.convs.append(
@@ -432,7 +430,7 @@ class Generator(nn.Module):
                 noise = [None] * self.num_layers
             else:
                 noise = [
-                    getattr(self.noises, f"noise_{i}") for i in range(self.num_layers)
+                    getattr(self.noises, f"_noise_{i}") for i in range(self.num_layers)
                 ]
         if truncation < 1:
             style_t = []
