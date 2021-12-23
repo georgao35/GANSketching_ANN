@@ -24,19 +24,23 @@ class DiffAugment(nn.Module):
 
 
 def rand_brightness(x):
-    x = x + (jittor.rand(x.size(0), 1, 1, 1, dtype=x.dtype) - 0.5)
+    x = x + (jittor.rand(x.size(0), 1, 1, 1, dtype=x.dtype, requires_grad=False) - 0.5)
     return x
 
 
 def rand_saturation(x):
     x_mean = x.mean(dim=1, keepdim=True)
-    x = (x - x_mean) * (jittor.rand(x.size(0), 1, 1, 1, dtype=x.dtype) * 2) + x_mean
+    x = (x - x_mean) * (
+        jittor.rand(x.size(0), 1, 1, 1, dtype=x.dtype, requires_grad=False) * 2
+    ) + x_mean
     return x
 
 
 def rand_contrast(x):
     x_mean = x.mean(dim=[1, 2, 3], keepdim=True)
-    x = (x - x_mean) * (jittor.rand(x.size(0), 1, 1, 1, dtype=x.dtype) + 0.5) + x_mean
+    x = (x - x_mean) * (
+        jittor.rand(x.size(0), 1, 1, 1, dtype=x.dtype, requires_grad=False) + 0.5
+    ) + x_mean
     return x
 
 
@@ -52,8 +56,6 @@ def rand_translation(x, ratio=0.125):
     )
     grid_x = jittor.clamp(grid_x + translation_x + 1, 0, x.size(2) + 1)
     grid_y = jittor.clamp(grid_y + translation_y + 1, 0, x.size(3) + 1)
-    test = jittor.float32([1, 2, 3])
-
     x_pad = nn.pad(x, [1, 1, 1, 1, 0, 0, 0, 0])
     x = x_pad.permute(0, 2, 3, 1)[grid_batch, grid_x, grid_y].permute(
         0, 3, 1, 2
