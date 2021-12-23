@@ -87,9 +87,7 @@ class GANModel(Module):
         return optimizer_G, optimizer_D
 
     def create_loss_fns(self, opt):
-        self.criterionGAN = networks.GANLoss(
-            opt.gan_mode, opt=self.opt
-        )
+        self.criterionGAN = networks.GANLoss(opt.gan_mode, opt=self.opt)
         if opt.l_weight > 0:
             self.weight_loss = networks.WeightLoss(self.G_params)
         if not opt.no_d_regularize:
@@ -323,9 +321,9 @@ class GANModel(Module):
 
 def mixing_noise(batch, latent_dim, prob, device):
     """Generate 1 or 2 set of noises for style mixing."""
-    ls = [jt.array(np.random.randn(batch, latent_dim))]
+    ls = [jt.randn(batch, latent_dim, requires_grad=False)]
     if prob > 0 and random.random() < prob:
-        ls.append(jt.array(np.random.randn(batch, latent_dim)))
+        ls.append(jt.randn(batch, latent_dim, requires_grad=False))
     return ls
 
 
