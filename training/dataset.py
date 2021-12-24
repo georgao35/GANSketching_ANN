@@ -5,7 +5,8 @@ from jittor.dataset import Dataset, RandomSampler, SequentialSampler
 from jittor import transform as transforms
 from jittor import dataset as data
 import lmdb
-import os
+import cv2
+import os, sys
 import pickle
 import string
 import io
@@ -85,14 +86,38 @@ class LmdbDataset(Dataset):
         with env.begin(write=False) as txn:
             imgbuf = txn.get(self.keys[index])
 
+        while img is None:
+            try:
+                try:
+                    img = cv2.imdecode(np.fromstring(imgbuf, dtype=np.uint8), 1)
+                    if img is None:
+                        raise IOError("cv2.imdecode failed")
+                    img = img[:, :, ::-1]  # BGR => RGB
+                except IOError:
+                    img = np.asarray(Image.open(io.BytesIO(imgbuf)))
+                crop = np.min(img.shape[:2])
+                img = img[
+                    (img.shape[0] - crop) // 2 : (img.shape[0] + crop) // 2,
+                    (img.shape[1] - crop) // 2 : (img.shape[1] + crop) // 2,
+                ]
+                img = Image.fromarray(img, "RGB")
+                img = img.resize((256, 256), Image.ANTIALIAS)
+            except:
+                print(sys.exc_info()[1])
+
+        """
         buf = io.BytesIO()
         buf.write(imgbuf)
         buf.seek(0)
         img = Image.open(buf).convert(self.image_mode)
         crop = np.min(img.shape[:2])
-        img = Image.fromarray(img, 'RGB')
-        img = img[(img.shape[0] - crop) // 2 : (img.shape[0] + crop) // 2, (img.shape[1] - crop) // 2 : (img.shape[1] + crop) // 2]
+        img = Image.fromarray(img, "RGB")
+        img = img[
+            (img.shape[0] - crop) // 2 : (img.shape[0] + crop) // 2,
+            (img.shape[1] - crop) // 2 : (img.shape[1] + crop) // 2,
+        ]
         img = img.resize((256, 256), Image.ANTIALIAS)
+        """
         if self.transform is not None:
             img = self.transform(img)
 
@@ -127,14 +152,14 @@ def create_dataloader(data_dir, size, batch, img_channel=3):
     else:
         raise ValueError("image channel should be 1 or 3, but got ", img_channel)
 
-    dataset = ImagePathDataset(data_dir, image_mode, transform)
-
+    dataset = ImagePathDataset(data_dir, image_mode, transform).set_attrs(
+        batch_size=batch, drop_last=True
+    )
     sampler = data_sampler(dataset, shuffle=True)
     # print("sketch_batch: {}".format(batch))
-    dataset.set_attrs(batch_size=batch, drop_last=True)
     # loader = data.DataLoader(dataset, batch_size=batch, sampler=sampler, drop_last=True)
     # return loader, sampler
-    return dataset, sampler
+    return sampler, sampler
 
 
 def create_lmdb_dataloader(data_dir, size, batch, img_channel=3):
@@ -155,14 +180,14 @@ def create_lmdb_dataloader(data_dir, size, batch, img_channel=3):
     else:
         raise ValueError("image channel should be 1 or 3, but got ", img_channel)
 
-    dataset = LmdbDataset(data_dir, image_mode, transform)
-
+    dataset = LmdbDataset(data_dir, image_mode, transform).set_attrs(
+        batch_size=batch, drop_last=True
+    )
     sampler = data_sampler(dataset, shuffle=True)
     # print("image_batch: {}".format(batch))
-    dataset.set_attrs(batch_size=batch, drop_last=True)
     # loader = data.DataLoader(dataset, batch_size=batch, sampler=sampler, drop_last=True)
     # return loader, sampler
-    return dataset, sampler
+    return sampler, sampler
 
 
 def yield_data(loader, sampler, distributed=False):
