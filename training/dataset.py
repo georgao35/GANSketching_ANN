@@ -86,24 +86,23 @@ class LmdbDataset(Dataset):
         with env.begin(write=False) as txn:
             imgbuf = txn.get(self.keys[index])
 
-        while img is None:
+        try:
             try:
-                try:
-                    img = cv2.imdecode(np.fromstring(imgbuf, dtype=np.uint8), 1)
-                    if img is None:
-                        raise IOError("cv2.imdecode failed")
-                    img = img[:, :, ::-1]  # BGR => RGB
-                except IOError:
-                    img = np.asarray(Image.open(io.BytesIO(imgbuf)))
-                crop = np.min(img.shape[:2])
-                img = img[
-                    (img.shape[0] - crop) // 2 : (img.shape[0] + crop) // 2,
-                    (img.shape[1] - crop) // 2 : (img.shape[1] + crop) // 2,
-                ]
-                img = Image.fromarray(img, "RGB")
-                img = img.resize((256, 256), Image.ANTIALIAS)
-            except:
-                print(sys.exc_info()[1])
+                img = cv2.imdecode(np.fromstring(imgbuf, dtype=np.uint8), 1)
+                if img is None:
+                    raise IOError("cv2.imdecode failed")
+                img = img[:, :, ::-1]  # BGR => RGB
+            except IOError:
+                img = np.asarray(Image.open(io.BytesIO(imgbuf)))
+            crop = np.min(img.shape[:2])
+            img = img[
+                (img.shape[0] - crop) // 2 : (img.shape[0] + crop) // 2,
+                (img.shape[1] - crop) // 2 : (img.shape[1] + crop) // 2,
+            ]
+            img = Image.fromarray(img, "RGB")
+            img = img.resize((256, 256), Image.ANTIALIAS)
+        except:
+            print(sys.exc_info()[1])
 
         """
         buf = io.BytesIO()
