@@ -49,14 +49,14 @@ class Upsample(nn.Module):
         self.factor = factor
         kernel: Var = make_kernel(kernel) * (factor ** 2)
         # TODO check buffer
-        self._kernel = kernel.stop_grad()
+        self.kernel = kernel.stop_grad()
         p = kernel.shape[0] - factor
         pad0 = (((p + 1) // 2) + factor) - 1
         pad1 = p // 2
         self.pad = (pad0, pad1)
 
     def execute(self, input):
-        out = upfirdn2d(input, self._kernel, up=self.factor, down=1, pad=self.pad)
+        out = upfirdn2d(input, self.kernel, up=self.factor, down=1, pad=self.pad)
         return out
 
 
@@ -68,7 +68,7 @@ class Downsample(nn.Module):
         kernel = make_kernel(kernel)
         # self.register_buffer("kernel", kernel)
         # TODO check buffer
-        self._kernel = kernel.stop_grad()
+        self.kernel = kernel.stop_grad()
 
         p = kernel.shape[0] - factor
 
@@ -78,7 +78,7 @@ class Downsample(nn.Module):
         self.pad = (pad0, pad1)
 
     def execute(self, input):
-        out = upfirdn2d(input, self._kernel, up=1, down=self.factor, pad=self.pad)
+        out = upfirdn2d(input, self.kernel, up=1, down=self.factor, pad=self.pad)
         return out
 
 
@@ -93,12 +93,12 @@ class Blur(nn.Module):
 
         # self.register_buffer("kernel", kernel)
         # TODO check buffer
-        self._kernel = kernel.stop_grad()
+        self.kernel = kernel.stop_grad()
 
         self.pad = pad
 
     def execute(self, input):
-        out = upfirdn2d(input, self._kernel, pad=self.pad)
+        out = upfirdn2d(input, self.kernel, pad=self.pad)
         return out
 
 
@@ -375,7 +375,7 @@ class Generator(nn.Module):
             res = (layer_idx + 5) // 2
             shape = [1, 1, (2 ** res), (2 ** res)]
             # TODO: check buffer
-            setattr(self.noises, f"_noise_{layer_idx}", jt.randn(shape).stop_grad())
+            setattr(self.noises, f"noise_{layer_idx}", jt.randn(shape).stop_grad())
         for i in range(3, (self.log_size + 1)):
             out_channel = self.channels[(2 ** i)]
             self.convs.append(
@@ -430,7 +430,7 @@ class Generator(nn.Module):
                 noise = [None] * self.num_layers
             else:
                 noise = [
-                    getattr(self.noises, f"_noise_{i}") for i in range(self.num_layers)
+                    getattr(self.noises, f"noise_{i}") for i in range(self.num_layers)
                 ]
         if truncation < 1:
             style_t = []
