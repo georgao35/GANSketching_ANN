@@ -95,7 +95,7 @@ class FusedLeakyReLUFunctionBackward(Function):
         ctx.scale = scale
 
         # empty = grad_output.new_empty(0)
-        empty = jt.empty(0, grad_output.dtype).stop_grad()
+        empty = jt.empty((0,), grad_output.dtype).stop_grad()
 
         grad_input = fused_bias_act_code_op(
             grad_output, empty, out, 3, 1, negative_slope, scale
@@ -118,7 +118,7 @@ class FusedLeakyReLUFunctionBackward(Function):
         # if gradgrad_input is None or gradgrad_bias is None:
         #     return None, None, None, None, None
         if gradgrad_bias is None:
-            gradgrad_bias = jt.empty(0)
+            gradgrad_bias = jt.empty((0,))
         (out,) = ctx.saved_tensors
         gradgrad_out = fused_bias_act_code_op(
             gradgrad_input, gradgrad_bias, out, 3, 1, ctx.negative_slope, ctx.scale
@@ -130,7 +130,7 @@ class FusedLeakyReLUFunctionBackward(Function):
 class FusedLeakyReLUFunction(Function):
     def execute(ctx, input, bias, negative_slope, scale):
         # empty = input.new_empty(0)
-        empty = jt.empty(0, input.dtype).stop_grad()
+        empty = jt.empty((0,), input.dtype).stop_grad()
 
         ctx.bias = bias is not None
 
