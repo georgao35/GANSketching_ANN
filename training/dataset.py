@@ -9,6 +9,7 @@ import os
 import pickle
 import string
 import io
+import numpy as np
 
 # from torchvision import transforms
 
@@ -88,7 +89,10 @@ class LmdbDataset(Dataset):
         buf.write(imgbuf)
         buf.seek(0)
         img = Image.open(buf).convert(self.image_mode)
-
+        crop = np.min(img.shape[:2])
+        img = Image.fromarray(img, 'RGB')
+        img = img[(img.shape[0] - crop) // 2 : (img.shape[0] + crop) // 2, (img.shape[1] - crop) // 2 : (img.shape[1] + crop) // 2]
+        img = img.resize((256, 256), Image.ANTIALIAS)
         if self.transform is not None:
             img = self.transform(img)
 

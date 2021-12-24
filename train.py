@@ -32,7 +32,7 @@ def training_loop():
     )
     # dataloader for image regularization
     if opt.dataroot_image is not None:
-        dataloader_image, sampler_image = create_lmdb_dataloader(
+        dataloader_image, sampler_image = create_dataloader(
             opt.dataroot_image, opt.size, opt.batch
         )
         data_yield_image = yield_data(dataloader_image, sampler_image)

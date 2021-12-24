@@ -139,3 +139,11 @@ cache_files/
 output/
 .vscode/
 *.pth
+
+
+_cache_mntdiskzwdataimagelmdbcat
+_cache_mntdiskzwdataimagelmdbchurch
+_cache_mntdiskzwdataimagelmdbhorse
+warning/
+
+*.zip
