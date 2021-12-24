@@ -44,8 +44,11 @@ def save_ims(prefix, ims):
 
 def save_gifs(prefix, ims):
     for ind, im in enumerate(ims):
-        Image.fromarray(im[0]).save(
-            prefix + f"{ind}.gif", save_all=True, append_images=im[1:], loop=0
+        mapped_im = []
+        for x in im:
+            mapped_im.append(Image.fromarray(x))
+        mapped_im[0].save(
+            prefix + f"{ind}.gif", save_all=True, append_images=mapped_im[1:], loop=0
         )
 
 
