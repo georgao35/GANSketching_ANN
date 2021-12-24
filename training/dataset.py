@@ -159,7 +159,7 @@ def create_dataloader(data_dir, size, batch, img_channel=3):
     # print("sketch_batch: {}".format(batch))
     # loader = data.DataLoader(dataset, batch_size=batch, sampler=sampler, drop_last=True)
     # return loader, sampler
-    return sampler, sampler
+    return dataset, sampler
 
 
 def create_lmdb_dataloader(data_dir, size, batch, img_channel=3):
@@ -187,7 +187,7 @@ def create_lmdb_dataloader(data_dir, size, batch, img_channel=3):
     # print("image_batch: {}".format(batch))
     # loader = data.DataLoader(dataset, batch_size=batch, sampler=sampler, drop_last=True)
     # return loader, sampler
-    return sampler, sampler
+    return dataset, sampler
 
 
 def yield_data(loader, sampler, distributed=False):
