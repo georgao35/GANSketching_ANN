@@ -222,7 +222,14 @@ class ModulatedConv2d(nn.Module):
             weight = weight.transpose(1, 2).reshape(
                 batch * in_channel, self.out_channel, self.kernel_size, self.kernel_size
             )
-            out = group_conv_transpose(input, weight, padding=0, stride=2, groups=batch)
+            if batch == 1:
+                out = nn.conv_transpose2d(
+                    input, weight, padding=0, stride=2, groups=batch
+                )
+            else:
+                out = group_conv_transpose(
+                    input, weight, padding=0, stride=2, groups=batch
+                )
             (_, _, height, width) = out.shape
             out = out.view((batch, self.out_channel, height, width))
             out = self.blur(out)
