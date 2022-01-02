@@ -144,9 +144,9 @@ python ganspace_gif.py --obj cat --comp_id 27 \
 
 An example adding-fur gif is shown as follows:
 
-| Image 1                   | Interoplation             | Image 2 |
-| ------------------------- | ------------------------- | ------- |
-| ![1](README.assets/1.jpg) | ![1](README.assets/1.gif) |         |
+| Image 1                   | Interoplation             | Image 2                               |
+| ------------------------- | ------------------------- | ------------------------------------- |
+| ![1](README.assets/1.jpg) | ![1](README.assets/1.gif) | ![1_after](README.assets/1_after.gif) |
 
 ## Acknowledgments
 
