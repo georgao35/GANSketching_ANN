@@ -25,7 +25,7 @@ cd GANSketching_Jittor
 
 Run `bash weights/download_weights.sh`
 
-You can also directly download from [here](https://cloud.tsinghua.edu.cn/f/185bb7796d5b43c0a6b4/) and extract it to <path_to_models>, which can be chosen arbitrarily in case you need to store it somewhere other than home directory.
+You can also directly download from [here](https://cloud.tsinghua.edu.cn/f/185bb7796d5b43c0a6b4/) and extract it to <path_to_models>, which can be chosen arbitrarily in case you need to store it somewhere other than the home directory.
 
 ### Generate samples from a customized model
 
@@ -33,7 +33,7 @@ This command runs the customized model specified by `ckpt`, and generates sample
 
 ```bash
 # generates samples from the "standing cat" model.
-python generate.py --ckpt weights/photosketch_standing_cat_noaug.pth --save_dir output/samples_standing_cat
+python generate.py --ckpt <path_to_models>/standing_cat_aug.jtr --save_dir output/samples_standing_cat
 
 # generates samples from the cat face model in Figure. 1 of the paper.
 python generate.py --ckpt weights/by_author_cat_aug.pth --save_dir output/samples_teaser_cat
