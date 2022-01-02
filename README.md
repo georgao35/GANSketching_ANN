@@ -9,14 +9,14 @@ The task of Sketch Your Own GAN is to customize a pre-trained GAN to match input
 ### Clone our repo
 
 ```bash
-git clone git@github.com:PeterWang512/GANSketching.git
-cd GANSketching
+git clone git@github.com:georgao35/GANSketching_Jittor.git
+cd GANSketching_Jittor
 ```
 
 ### Install packages
 
 - Install Jittor (https://cg.cs.tsinghua.edu.cn/jittor/) and other packages.
-
+  
   ```bash
   pip install -r requirements.txt
   ```
@@ -24,6 +24,8 @@ cd GANSketching
 ### Download model weights
 
 Run `bash weights/download_weights.sh`
+
+You can also directly download from [here](https://cloud.tsinghua.edu.cn/f/185bb7796d5b43c0a6b4/) and extract it to <path_to_models>, which can be chosen arbitrarily in case you need to store it somewhere other than home directory.
 
 ### Generate samples from a customized model
 
@@ -96,10 +98,9 @@ The training progress is tracked using `wandb` by default. To disable wandb logg
 
 Please make sure the evaluation set and model weights are downloaded before running the evaluation.
 
-You can download our [models](https://cloud.tsinghua.edu.cn/f/185bb7796d5b43c0a6b4/) and extract to a certain path <path_to_models>.
-
 ```bash
 # You may have run these scripts already in the previous sections
+bash weights/download_weights.sh # You can download models in either way.
 bash data/download_eval_data.sh
 ```
 
@@ -143,9 +144,9 @@ python ganspace_gif.py --obj cat --comp_id 27 \
 
 An example adding-fur gif is shown as follows:
 
-| Image 1   ![img](images/cat2.jpg) | Interoplation   ![img](images/interp2.gif) | Image 2   ![img](images/cat1.jpg) |
-| --------------------------------- | ------------------------------------------ | --------------------------------- |
-|                                   |                                            |                                   |
+| Image 1                   | Interoplation             | Image 2 |
+| ------------------------- | ------------------------- | ------- |
+| ![1](README.assets/1.jpg) | ![1](README.assets/1.gif) |         |
 
 ## Acknowledgments
 
